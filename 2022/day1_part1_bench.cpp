@@ -5,12 +5,28 @@
 #include <fstream>
 #include <sstream>
 
+#include <chrono>
+
 using namespace std;
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) return 1;
-    string filename(argv[1]);
-    ifstream file_stream(filename);
+void benchmark(void(*func)(), int repeat, int number_runs) {
+    double smallest = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < repeat; i++) {
+        auto t0 = std::chrono::high_resolution_clock::now();
+        for (int j = 0; j < number_runs; j++) {
+            func();
+        }
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> delta = t1 - t0;
+        if (delta.count() < smallest) {
+            smallest = delta.count();
+        }
+    }
+    std::cout << smallest << " SEC" << std::endl;
+}
+
+void func() {
+    ifstream file_stream("input.txt");
     stringstream buffer;
     buffer << file_stream.rdbuf();
     string input = buffer.str();
@@ -43,5 +59,9 @@ int main(int argc, char *argv[]) {
             max = sum;
         }
     }
-    cout << max;
+    int res = max;
+}
+
+int main(int argc, char *argv[]) {
+    benchmark(func, 50, 100);
 }
