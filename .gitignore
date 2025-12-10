@@ -5,3 +5,5 @@
 *.obj
 *.o
 *.ilk
+.vscode
+target
